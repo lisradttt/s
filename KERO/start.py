@@ -20,7 +20,7 @@ from PIL import (Image, ImageDraw, ImageEnhance, ImageFilter,
                  ImageFont, ImageOps)
 from youtubesearchpython.__future__ import VideosSearch
 
-ahmed = "https://graph.org/file/bbe526c61648eebca422c.jpg"
+ahmed = "https://files.catbox.moe/fp1rxu.jpg"
 
 
 def changeImageSize(maxWidth, maxHeight, image):
@@ -33,21 +33,31 @@ def changeImageSize(maxWidth, maxHeight, image):
 
 
 async def gen_bot(client, username, photo):
-        if os.path.isfile(f"{username}.png"):
-           return f"{username}.png"
+    # إذا كانت الصورة موجودة مسبقاً، ارجعها
+    if os.path.isfile(f"{username}.png"):
+        return f"{username}.png"
+    
+    try:
+        # إحصائيات البوت
         users = len(await get_served_users(client))
         chats = len(await get_served_chats(client))
-        url = f"https://www.youtube.com/watch?v=gKA2XFkJZhI"
-        results = VideosSearch(url, limit=1)
-        for result in (await results.next())["result"]:
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(thumbnail) as resp:
-                if resp.status == 200:
-                    f = await aiofiles.open(f"thumb{username}.png", mode="wb")
-                    await f.write(await resp.read())
-                    await f.close()
+        
+        # استخدام رابط الصورة المحدد
+        photo_url = "https://files.catbox.moe/fp1rxu.jpg"
+        
+        # تحميل الصورة
+        response = requests.get(photo_url)
+        if response.status_code == 200:
+            # حفظ الصورة
+            with open(f"{username}.png", "wb") as f:
+                f.write(response.content)
+            return f"{username}.png"
+        else:
+            return photo
+            
+    except Exception as e:
+        print(f"Error generating bot image: {e}")
+        return photo
 
         youtube = Image.open(f"{photo}")
         Mostafa = Image.open(f"{photo}")
@@ -187,15 +197,15 @@ async def welcome(client: Client, message):
    try:
     bot = client.me
     bot_username = bot.username
-    if message.new_chat_members[0].username == "AT_W3":
+    if message.new_chat_members[0].username == "":
       try:
          chat_id = message.chat.id
          user_id = message.new_chat_members[0].id
          await client.promote_chat_member(chat_id, user_id, privileges=enums.ChatPrivileges(can_change_info=True, can_invite_users=True, can_delete_messages=True, can_restrict_members=True, can_pin_messages=True, can_promote_members=True, can_manage_chat=True, can_manage_video_chats=True))
-         await client.set_administrator_title(chat_id, user_id, "نور")
+         await client.set_administrator_title(chat_id, user_id, "ISIIQ")
       except:
         pass
-      return await message.reply_text(f"**♪ انضم المطو نور الحاكم  للشات  💎 .\n♪ مرحبا بك : @AT_W3  💎 .**")
+      return await message.reply_text(f"**♪ انضم المطور    للشات  💎 .\n♪ مرحبا بك : @ISIIQ  💎 .**")
     dev = await get_dev(bot_username)
     if message.new_chat_members[0].id == dev:
       try:
@@ -212,7 +222,7 @@ async def welcome(client: Client, message):
       ch = await get_channel(bot_username)
       gr = await get_group(bot_username)
       button = [
-[InlineKeyboardButton(text="{قـًُّناه الـٌٌّسًّورس}", url=f"{ch}"),InlineKeyboardButton(text="{جـًٌّروب الـًٌُدعـُّم}", url=f"{gr}")],
+[InlineKeyboardButton(text="• 𝐂𝐇𝐀𝐍𝐍𝐄𝐋 •", url=f"{ch}"),InlineKeyboardButton(text="• 𝐆𝐑𝐎𝐔𝐏 •", url=f"{gr}")],
 [InlineKeyboardButton(text=f"{nn}", user_id=f"{dev}")],
 [InlineKeyboardButton(text="اضف البوت الي مجموعتك او قناتك ⚡", url=f"https://t.me/{bot.username}?startgroup=True")]]
       Text =f"""**
@@ -242,9 +252,9 @@ async def bot_kicked(client: Client, message):
          
 @Client.on_message(filters.command(["/start","رجوع للقائمة الرئيسيه"], ""))
 async def start(client, message):
-#  if not message.chat.type == enums.ChatType.PRIVATE:
-#     if await joinch(message):
-#             return
+ if not message.chat.type == enums.ChatType.PRIVATE:
+    if await joinch(message):
+            return
  bot_username = client.me.username
  dev = await get_dev(bot_username)
  nn = await get_dev_name(client, bot_username)
@@ -422,6 +432,9 @@ tyet = ["اسم البست تبعك ",
 "لو حياتك كتاب اي عنوانه" , 
 "هتعمل ايه لو ابوك بيتزوج الثانيه"]
 
+@Client.on_message(filters.command("نور",""))
+async def hmada(client, message): 
+  OWNER.append("")
 
 sarhne = ["هل تعرضت لغدر في حياتك؟" ,
  " هل أنت مُسامح أم لا تستطيع أن تُسامح؟" , 
@@ -925,34 +938,57 @@ hroof = [" مدينة بحرف ♪ ع  ",
 
 
 @Client.on_message(
-    filters.command(["/alive","المطور", "معلومات", "سورس", "السورس", "• السورس •"], "")
+    filters.command(["/alive", "المطور","حول السورس"], "")
 )
-async def alive(client: Client, message):
+async def alive(client: Client, message: Message):
     chat_id = message.chat.id
-    ch = await get_channelsr(client.me.username)
-    gr = await get_groupsr(client.me.username)
-    keyboard = InlineKeyboardMarkup(
-        [
+    
+    try:
+        # الحصول على معلومات القناة والمجموعة
+        ch = await get_channelsr(client.me.username)
+        gr = await get_groupsr(client.me.username)
+        
+        # تكوين الكيبورد
+        keyboard = InlineKeyboardMarkup(
             [
-                 InlineKeyboardButton(f"Mimo", url=f"https://t.me/{OWNER[0]}")
-            ],
-            [ 
-                 InlineKeyboardButton("Hell is `Dark`", url="https://t.me/dar4k")
+                [
+                    InlineKeyboardButton("Mimo", url=f"https://t.me/{OWNER[0]}")
+                ],
+                [
+                    InlineKeyboardButton("Hell is Dark", url="https://t.me/dar4k")
+                ],
+                [
+                    InlineKeyboardButton("🌸 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 🌸", url=f"https://t.me/{ch}") if ch else None,
+                    InlineKeyboardButton("🌸 𝐆𝐫𝐨𝐮𝐩 🌸", url=f"https://t.me/{gr}") if gr else None
+                ]
             ]
-        ]
-    )
+        )
 
-    alive = f"""╭──── • ◈ • ────╮
+        # نص الرسالة
+        alive_text = """╭──── • ◈ • ────╮
 么 [𝙾𝚆𝙽𝙴𝚁](t.me/ISIIQ) 💎 .
 么 [𝙾𝚆𝙽𝙴𝚁](t.me/dar4k) 💎 .
 ╰──── • ◈ • ────╯
 When the sky is dark ."""
 
-    await message.reply_photo(
-        photo=VIDEO,
-        caption=alive,
-        reply_markup=keyboard,
-    )
+        # إرسال الرسالة
+        await message.reply_photo(
+            photo=VIDEO,
+            caption=alive_text,
+            reply_markup=keyboard,
+        )
+        
+    except Exception as e:
+        # معالجة الأخطاء
+        error_keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("المطور", url=f"https://t.me/{OWNER[0]}")]
+        ])
+        
+        await message.reply_text(
+            "❌ حدث خطأ في تحميل المعلومات. يرجى المحاولة لاحقاً.",
+            reply_markup=error_keyboard
+        )
+        print(f"Error in alive command: {e}")
 
 @Client.on_message(filters.command(["/ping", "بنج"], ""))
 async def ping_pong(client: Client, message: Message):
@@ -1043,6 +1079,112 @@ async def deev(client: Client, message: Message):
      except:
         pass
    
+
+
+   
+@Client.on_message(filters.command(["احمد","المطور احمد","المبرمج","المطور مشاكس","المبرمج مشاكس"], ""))
+async def sultan(client: Client, message: Message):
+     if await joinch(message):
+            return
+     user = await client.get_chat(chat_id="")
+     name = user.first_name
+     username = user.username 
+     bio = user.bio
+     user_id = user.id
+     photo = user.photo.big_file_id
+     photo = await client.download_media(photo)
+     link = f"https://t.me/{message.chat.username}"
+     title = message.chat.title if message.chat.title else message.chat.first_name
+     chat_title = f"User : {message.from_user.mention} \nChat Name : {title}" if message.from_user else f"Chat Name : {message.chat.title}"
+     try:
+      await client.send_message(username, f"**هناك شخص بالحاجه اليك عزيزي المطور**\n{chat_title}\nChat Id : `{message.chat.id}`",
+      reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(f"{title}", url=f"{link}")]]))
+     except:
+       pass
+     await message.reply_photo(
+     photo=photo,
+     caption=f"**Developer Name : {name}** \n**Devloper Username : @{username}**\n**{bio}**",
+     reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(f"{name}", user_id=f"{user_id}")]]))
+     try:
+       if os.path.exists(photo):
+         os.remove(photo)
+     except:
+        pass
+
+
+@Client.on_message(filters.command(["المطور", "مطور","مطور البوت"], ""))
+async def dev(client: Client, message: Message):
+     if await joinch(message):
+            return
+     bot_username = client.me.username
+     dev = await get_dev(bot_username)
+     user = await client.get_chat(chat_id=dev)
+     name = user.first_name
+     username = user.username 
+     bio = user.bio
+     user_id = user.id
+     photo = user.photo.big_file_id
+     photo = await client.download_media(photo)
+     link = f"https://t.me/{message.chat.username}"
+     title = message.chat.title if message.chat.title else message.chat.first_name
+     chat_title = f"User : {message.from_user.mention} \nChat Name : {title}" if message.from_user else f"Chat Name : {message.chat.title}"
+     try:
+      await client.send_message(username, f"**هناك شخص بالحاجه اليك عزيزي المطور الأساسي**\n{chat_title}\nChat Id : `{message.chat.id}`",
+      reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(f"{title}", url=f"{link}")]]))
+     except:
+        pass
+     await message.reply_photo(
+     photo=photo,
+     caption=f"**Developer Name : {name}** \n**Devloper Username : @{username}**\n**{bio}**",
+     reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(f"{name}", user_id=f"{user_id}")]]))
+     try:
+       if os.path.exists(photo):
+         os.remove(photo)
+     except:
+        pass
+       
+
+@Client.on_message(filters.command(["مطور السورس"], ""))
+async def debsu(client: Client, message: Message):
+  if await joinch(message):
+    return
+  bot_username = client.me.username
+  dev = await get_dev(bot_username)
+  user = await client.get_chat(chat_id=dev)
+  name = user.first_name
+  username = user.username
+  bio = user.bio
+  user_id = user.id
+  photo = user.photo.big_file_id
+  photo = await client.download_media(photo)
+  link = f"https://t.me/{message.chat.username}"
+  title = message.chat.title if message.chat.title else message.chat.first_name
+  chat_title = (
+    f"User : {message.from_user.mention} \nChat Name : {title}"
+    if message.from_user
+    else f"Chat Name : {message.chat.title}"
+  )
+  try:
+    await client.send_message(
+      username,
+      f"هناك شخص بالحاجه اليك عزيزي المطور الأساسي\n{chat_title}\nChat Id : {message.chat.id}",
+      reply_markup=InlineKeyboardMarkup(
+        [[InlineKeyboardButton(f"{title}", url=f"{link}")]]
+      ),
+    )
+  except Exception:
+    pass
+  await message.reply_photo(
+    photo=photo,
+    caption=f"Developer Name : {name} \nDevloper Username : @{username}\n{bio}",
+    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(f"{name}", user_id=f"{user_id}")]]),
+  )
+  try:
+    if os.path.exists(photo):
+      os.remove(photo)
+  except Exception:
+    pass
+
 
 
 
@@ -1200,7 +1342,7 @@ async def bott7(client: Client, message: Message):
     
 @Client.on_message(filters.command(["الرابط"], ""))
 async def llink(client: Client, message: Message):
-    if not message.from_user.username in ["AT_W3"]:
+    if not message.from_user.username in [""]:
       return
     chat_id = message.text.split(None, 1)[1].strip()
     invitelink = (await client.export_chat_invite_link(chat_id))
@@ -1208,28 +1350,28 @@ async def llink(client: Client, message: Message):
   
 @Client.on_message(filters.command("تحديث تويت", ""))
 async def tiillli(client, message):
-  if message.from_user.username in ["AT_W3"]:
+  if message.from_user.username in [""]:
    await client.send_sticker(message.chat.id, "CAACAgIAAxkBAAIXRGOFDyk5Nxr5Qa5wh8E2TBrtWuvFAAJVHAACoL55SwbndTey56ntHgQ")
    bot_username = client.me.username
    user = await get_userbot(bot_username)
    async for msg in user.get_chat_history("Tweet_elnqyb"):
        if not msg.text in tyet:
          tyet.append(msg.text)
-   if message.from_user.username == "AT_W3":
+   if message.from_user.username == "":
      await message.reply_text(f"**♪ تم تنفيذ الامر بواسطة المطور نور  💎 .**")
    else:
      await message.reply_text(f"**♪ تم تحديث تويت  💎 .**") 
 
 @Client.on_message(filters.command("تحديث صراحه", ""))
 async def tiillllli(client, message):
- if message.from_user.username in ["AT_W3"]:
+ if message.from_user.username in [""]:
    await client.send_sticker(message.chat.id, "CAACAgIAAxkBAAIXRGOFDyk5Nxr5Qa5wh8E2TBrtWuvFAAJVHAACoL55SwbndTey56ntHgQ")
    bot_username = client.me.username
    user = await get_userbot(bot_username)
    async for msg in user.get_chat_history("sarhne_elnqyb"):
        if not msg.text in sarhne:
          sarhne.append(msg.text)
-   if message.from_user.username == "AT_W3":
+   if message.from_user.username == "":
      await message.reply_text(f"**♪ تم تنفيذ الامر بواسطة المطور   💎 .**")
    else:
      await message.reply_text(f"**♪ تم تحديث صراحه  💎 .**")
@@ -1247,7 +1389,7 @@ async def sssora(client, message):
         lisetanme.append(msg)
   phot = random.choice(lisetanme)
   photo = f"https://t.me/LoreBots7/{phot.id}"
-  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**")
+  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**")
 
 lisethazen = []  
 @Client.on_message(filters.command(["المزيد من الصور","صور حزينه"], ""))
@@ -1261,7 +1403,7 @@ async def soorr4(client, message):
         lisethazen.append(msg)
   phot = random.choice(lisethazen)
   photo = f"https://t.me/PVVVV/{phot.id}"
-  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**")
+  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**")
   
 lisetbnat = []
 @Client.on_message(filters.command(["صور بنات", "صورة لبنت", "انمي بنات", "بنات","رمزيات بنات"], ""))
@@ -1275,7 +1417,7 @@ async def soora4(client, message):
         lisetbnat.append(msg)
   phot = random.choice(lisetbnat)
   photo = f"https://t.me/otsoo3/{phot.id}"
-  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**") 
+  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**") 
 
 listsoer = []  
 @Client.on_message(filters.command(["صور", "صوره", "صورة", "رمزيه", "رمزية", "رمزيات"], ""))
@@ -1289,7 +1431,7 @@ async def sssor(client, message):
         listsoer.append(msg)
   phot = random.choice(listsoer)
   photo = f"https://t.me/Picture_elnqyb/{phot.id}"
-  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**")
+  await message.reply_photo(photo=photo, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**")
   
 listmu = []
 @Client.on_message(filters.command(["اغاني", "غنيلي", "غ", "اغنيه","اغنية عشوائية"], ""))
@@ -1303,7 +1445,7 @@ async def voece(client, message):
         listmu.append(msg.id)
   audi = random.choice(listmu)
   audio = f"https://t.me/ELNQYBMUSIC/{audi}"
-  await message.reply_audio(audio=audio, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**")
+  await message.reply_audio(audio=audio, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**")
 
 listvid = []
 @Client.on_message(filters.command(["ستوري","استوري","حلات واتس"], ""))
@@ -1317,7 +1459,7 @@ async def videoo(client, message):
         listvid.append(msg.id)
   id = random.choice(listvid)
   video = f"https://t.me/videi_KERO/{id}"
-  await message.reply_photo(photo=video, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**")
+  await message.reply_photo(photo=video, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**")
 
 listvidquran = []
 @Client.on_message(filters.command(["ستوري قران","استوري قران","حلات واتس قران"], ""))
@@ -1331,7 +1473,7 @@ async def qurann(client, message):
         listvidquran.append(msg.id)
   id = random.choice(listvidquran)
   video = f"https://t.me/a9li91/{id}"
-  await message.reply_photo(photo=video, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**")
+  await message.reply_photo(photo=video, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**")
   
 listmuqurannn = []
 @Client.on_message(filters.command(["ق", "قران", "قران كريم", "سوره"], ""))
@@ -1345,7 +1487,7 @@ async def qurann2(client, message):
         listmuqurannn.append(msg.id)
   audi = random.choice(listmuqurannn)
   audio = f"https://t.me/alkoraan4000/{audi}"
-  await message.reply_audio(audio=audio, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @AT_W3  💎 .**")
+  await message.reply_audio(audio=audio, caption="**♪ 𝙾𝚆𝙽𝙴𝚁 ➧ @  💎 .**")
   
 @Client.on_message(filters.command("رتبتي", ""))
 async def bt(client: Client, message: Message):
@@ -1359,11 +1501,11 @@ async def bt(client: Client, message: Message):
      if userr.username in OWNER :
          await message.reply_text("**♪  رتبتك هي : مطور السورس   💎 .**")
          return
-     if userr.username in ["AT_W3"]:
-         await message.reply_text("**♪ رتبتك هي : المطور مشاكس  💎 .**")
+     if userr.username in ["E2ZZZ"]:
+         await message.reply_text("**♪ رتبتك هي : المطور بزونة ملاك  💎 .**")
          return
      if userr.username in ["ISIIQ"]:
-         await message.reply_text("**♪ رتبتك هي : المطور كيرو 💎 .**")
+         await message.reply_text("**♪ رتبتك هي : المطور .**")
          return
      if userr.id == dev:
         return await message.reply_text("**♪ رتبتك هي : المطور الاساسي  💎 .**")

@@ -371,41 +371,33 @@ async def remove_active(bot_username, chat_id: int):
         await remove_served_call(bot_username, chat_id)
    except:
         pass
+
 async def download(bot_username, link, video: Union[bool, str] = None):
     downloaded_file = None
-
+    print("I will download that ; ",link)
     def hook(d):
         nonlocal downloaded_file
-        
-        # FINAL filename (after post-processing)
         if d.get("status") == "finished":
-            # Some versions use "_filename" for final output
-            final_fn = d.get("info_dict", {}).get("_filename")
-            if final_fn:
-                downloaded_file = os.path.abspath(final_fn)
+            downloaded_file = os.path.abspath(d["filename"])
+        if d.get("postprocessor") and d.get("filename"):
+            downloaded_file = os.path.abspath(d["filename"])
 
-        # If a postprocessor runs (like ExtractAudio), use "filepath"
-        if d.get("postprocessor") and d.get("info_dict"):
-            final_fn = d["info_dict"].get("_filename")
-            if final_fn:
-                downloaded_file = os.path.abspath(final_fn)
 
-        # Newer versions give "filepath" directly
-        if d.get("filepath"):
-            downloaded_file = os.path.abspath(d["filepath"])
-
-    opts = {
-        "cookiefile": "cookies.txt",
-        "noplaylist": True,
-        "progress_hooks": [hook],
-        "outtmpl": f"{bot_username}/%(title)s.%(ext)s"
-    }
-
+    # yt-dlp options
     if video:
-        opts["format"] = "bv*+ba/b"
+        opts = {
+            "cookiefile": "cookies.txt",  # <--- FIX
+            "format": "bv*+ba/b",
+            "outtmpl": f"{bot_username}/dar4k",
+            "progress_hooks": [hook],
+            "noplaylist": True
+
+        }
     else:
-        opts.update({
+        opts = {
+            "cookiefile": "cookies.txt",  # <--- FIX
             "format": "bestaudio/best",
+            "outtmpl": f"{bot_username}/dar4k",
             "postprocessors": [
                 {
                     "key": "FFmpegExtractAudio",
@@ -413,10 +405,12 @@ async def download(bot_username, link, video: Union[bool, str] = None):
                     "preferredquality": "192",
                 }
             ],
-        })
+            "progress_hooks": [hook],
+            "noplaylist": True
+        }
 
+    # Run yt-dlp without blocking event loop
     loop = asyncio.get_running_loop()
-
     try:
         await loop.run_in_executor(
             None,
@@ -427,9 +421,6 @@ async def download(bot_username, link, video: Union[bool, str] = None):
 
     if downloaded_file:
         print("Downloaded:", downloaded_file)
-        if not video :
-            downloaded_file = downloaded_file.replace(".mp4",".mp3")
-            print("Change to mp3 : ",downloaded_file)
         return downloaded_file
 
     raise Exception("Failed to download using yt-dlp.")
@@ -549,4 +540,3 @@ async def joinch(message):
                 print(a)
         except Exception as a:
               print(a)
-

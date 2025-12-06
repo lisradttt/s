@@ -31,15 +31,13 @@ from pytgcalls.types import (JoinedGroupCallParticipant,
                              LeftGroupCallParticipant, Update)
 from pytgcalls.types.input_stream import AudioPiped, AudioVideoPiped
 from pytgcalls.types.stream import StreamAudioEnded
-from config import API_ID, API_HASH, MONGO_DB_URL, VIDEO, OWNER, OWNER_NAME, LOGS, GROUP, CHANNEL
-from OWNER import PHOTO
+from config import API_ID, API_HASH, MONGO_DB_URL, VIDEO, OWNER, OWNER_NAME, LOGS, GROUP, CHANNEL, PHOTO
 from motor.motor_asyncio import AsyncIOMotorClient as _mongo_client_
 from pymongo import MongoClient
 from bot import bot as man
 from KERO.info import (db, add, is_served_call, add_active_video_chat, add_served_call, add_active_chat, gen_thumb, download, remove_active, joinch)
 from KERO.Data import (get_logger, get_userbot, get_call, get_logger_mode, get_group, get_channel)
 import asyncio
-
              
 mongodb = _mongo_client_(MONGO_DB_URL)
 pymongodb = MongoClient(MONGO_DB_URL)
@@ -56,7 +54,7 @@ async def join_assistant(client, chat_id, message_id, userbot, file_path):
             except ChatAdminRequired:
                 await client.send_message(chat_id, f"**قم بترقية البوت مشرف .⚡**", reply_to_message_id=message_id)
             if get.status == ChatMemberStatus.BANNED:
-                await client.send_message(chat_id, f"**قم بالغاء الحظر عن الحساب المساعد لتفعيل البوت**.\n\n @{user.username} : **الحساب المساعد **⚡.\n** قم بتنظيف قايمه المستدخمين تمت ازالتهم ⚡.**\n\n** @ISIIQ | @AT_W3 : او تواصل مع المطور من هنا ⚡.**", reply_to_message_id=message_id)
+                await client.send_message(chat_id, f"**قم بالغاء الحظر عن الحساب المساعد لتفعيل البوت**.\n\n @{user.username} : **الحساب المساعد **⚡.\n** قم بتنظيف قايمه المستدخمين تمت ازالتهم ⚡.**\n\n** @ISIIQ | @ISIIQ : او تواصل مع المطور من هنا ⚡.**", reply_to_message_id=message_id)
             else:
               join = True
         except UserNotParticipant:
@@ -121,12 +119,7 @@ async def join_call(
         file_path = file_path
         audio_stream_quality = MediumQualityAudio()
         video_stream_quality = MediumQualityVideo()
-        try :
-          stream = (AudioVideoPiped(file_path, audio_parameters=audio_stream_quality, video_parameters=video_stream_quality) if vid else AudioPiped(file_path, audio_parameters=audio_stream_quality))
-        except :
-          print("File error : ",file_path)
-          file_path = file_path.replace(".mp4",".mp3")
-          stream = (AudioVideoPiped(file_path, audio_parameters=audio_stream_quality, video_parameters=video_stream_quality) if vid else AudioPiped(file_path, audio_parameters=audio_stream_quality))
+        stream = (AudioVideoPiped(file_path, audio_parameters=audio_stream_quality, video_parameters=video_stream_quality) if vid else AudioPiped(file_path, audio_parameters=audio_stream_quality))
         try:
             await call.join_group_call(chat_id, stream, stream_type=StreamType().pulse_stream)
             Done = True
@@ -254,7 +247,7 @@ async def play(client: Client, message):
   message_id = message.id 
   gr = await get_group(bot_username)
   ch = await get_channel(bot_username)
-  button = [[InlineKeyboardButton(text=".♪ 𝑬𝒏𝒅", callback_data=f"stop"), InlineKeyboardButton(text="𝑹𝒆𝒔𝒖𝒎𝒆", callback_data=f"resume"), InlineKeyboardButton(text="𝑷𝒂𝒖𝒔𝒆 ♪.", callback_data=f"pause")], [InlineKeyboardButton(text="{قــناه الســورس}", url=f"{ch}"), InlineKeyboardButton(text="{جــروب الـدعم}", url=f"{gr}")], [InlineKeyboardButton(text=f"{OWNER_NAME}", url="https://t.me/AT_W3")], [InlineKeyboardButton(text="اضف البوت الي مجموعتك او قناتك ⚡", url=f"https://t.me/{bot_username}?startgroup=True")]]
+  button = [[InlineKeyboardButton(text=".♪ 𝑬𝒏𝒅", callback_data=f"stop"), InlineKeyboardButton(text="𝑹𝒆𝒔𝒖𝒎𝒆", callback_data=f"resume"), InlineKeyboardButton(text="𝑷𝒂𝒖𝒔𝒆 ♪.", callback_data=f"pause")], [InlineKeyboardButton(text="{قــناه الســورس}", url=f"{ch}"), InlineKeyboardButton(text="{جــروب الـدعم}", url=f"{gr}")], [InlineKeyboardButton(text=f"{OWNER_NAME}", url="https://t.me/ISIIQ")], [InlineKeyboardButton(text="اضف البوت الي مجموعتك او قناتك ⚡", url=f"https://t.me/{bot_username}?startgroup=True")]]
   if message.chat.type == ChatType.PRIVATE:
        return await message.reply_text("**♪ لا يمكنك التشغيل هنا للأسف 💎 .\n♪ قم بإضافة البوت اللي مجموعتك للتشغيل 💎 .**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ضف البوت الي مجموعتك او قناتك ⚡", url=f"https://t.me/{bot_username}?startgroup=True")]]))
   if message.sender_chat:
@@ -303,7 +296,25 @@ async def play(client: Client, message):
          chatname = f"[{message.chat.title}](https://t.me/{message.chat.username})" if message.chat.username else f"{message.chat.title}"
          chatname = f"{message.author_signature}" if message.author_signature else chatname
          requester = chatname if getattr(KERO, 'views', False) else f"[{message.from_user.first_name}](tg://user?id={message.from_user.id})"
-         await message.reply_photo(photo=PHOTO, caption=f"**♪ Add Track To Playlist : {position} 🥁 .\n\n♪ Song Name : {title} 🎞️ .\n♪ Duration Time : {duration} ⌚ .\n♪ Request By : {requester} 👤 .**", reply_markup=InlineKeyboardMarkup(button))
+         if message.from_user:
+          if message.from_user.photo:
+           photo_id = message.from_user.photo.big_file_id
+           photo = await client.download_media(photo_id)
+          elif message.chat.photo:
+           photo_id = message.chat.photo.big_file_id
+           photo = await client.download_media(photo_id)
+          else:
+           ahmed = await client.get_chat("ISIIQ")
+           ahmedphoto = ahmed.photo.big_file_id
+         elif message.chat.photo:
+          photo_id = message.chat.photo.big_file_id
+          photo = await client.download_media(photo_id)
+         else:
+          ahmed = await client.get_chat("ISIIQ")
+          ahmedphoto = ahmed.photo.big_file_id
+          photo = await client.download_media(ahmedphoto)
+         photo = await gen_thumb(videoid, photo)
+         await message.reply(photo=photo, caption=f"**♪ Add Track To Playlist : {position} 🥁 .\n\n♪ Song Name : {title} 🎞️ .\n♪ Duration Time : {duration} ⌚ .\n♪ Request By : {requester} 👤 .**", reply_markup=InlineKeyboardMarkup(button))
          await logs(bot_username, client, message)
      else: 
          chat_id = message.chat.id
@@ -323,7 +334,25 @@ async def play(client: Client, message):
          chatname = f"[{message.chat.title}](https://t.me/{message.chat.username})" if message.chat.username else f"{message.chat.title}"
          chatname = f"{message.author_signature}" if message.author_signature else chatname
          requester = chatname if getattr(KERO, 'views', False) else f"[{message.from_user.first_name}](tg://user?id={message.from_user.id})"
-         await message.reply_photo(photo=PHOTO, caption=f"**♪ Startling Playing Now 🥁 .\n\n♪ Song Name : {title} 🎞️ .\n♪ Duration Time : {duration} ⌚ .\n♪ Request By : {requester} 👤 .**", reply_markup=InlineKeyboardMarkup(button))
+         if message.from_user:
+          if message.from_user.photo:
+           photo_id = message.from_user.photo.big_file_id
+           photo = await client.download_media(photo_id)
+          elif message.chat.photo:
+           photo_id = message.chat.photo.big_file_id
+           photo = await client.download_media(photo_id)
+          else:
+           ahmed = await client.get_chat("ISIIQ")
+           ahmedphoto = ahmed.photo.big_file_id
+         elif message.chat.photo:
+          photo_id = message.chat.photo.big_file_id
+          photo = await client.download_media(photo_id)
+         else:
+          ahmed = await client.get_chat("ISIIQ")
+          ahmedphoto = ahmed.photo.big_file_id
+          photo = await client.download_media(ahmedphoto)
+         photo = await gen_thumb(videoid, photo)
+         await message.reply_photo(photo=photo, caption=f"**♪ Startling Playing Now 🥁 .\n\n♪ Song Name : {title} 🎞️ .\n♪ Duration Time : {duration} ⌚ .\n♪ Request By : {requester} 👤 .**", reply_markup=InlineKeyboardMarkup(button))
          await logs(bot_username, client, message)
      await rep.delete()
   else:

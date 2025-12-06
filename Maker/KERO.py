@@ -251,10 +251,34 @@ async def alive(client: Client, message):
     )
 @app.on_message(filters.command("تحديث الصانع", ""))
 async def update(client, message):
-  msg = await message.reply_text(f"**♪ تم تحديث الصانع بنجاح  🚦⚡ .**",quote=True)
-  args = [sys.executable, "main.py"]
-  # execle is a blocking OS call and not awaitable; restart process
-  os.execle(sys.executable, sys.executable, *args, environ)
+  try:
+    msg = await message.reply_text(f"**♪ جاري إيقاف جميع البوتات ...🚦⚡ .**",quote=True)
+    # إيقاف جميع البوتات المشغلة
+    for bot_username in list(appp.keys()):
+      try:
+        await appp[bot_username].stop()
+        await usr[bot_username].stop()
+        print(f"[INFO]: تم إيقاف البوت @{bot_username}")
+      except Exception as e:
+        print(f"[WARNING]: خطأ في إيقاف @{bot_username}: {e}")
+    
+    # مسح البيانات المؤقتة
+    appp.clear()
+    usr.clear()
+    activecall.clear()
+    dev.clear()
+    devname.clear()
+    ass.clear()
+    Done.clear()
+    
+    await msg.edit_text(f"**♪ تم تحديث الصانع بنجاح  🚦⚡ .**")
+    print("[INFO]: جاري إعادة تشغيل الصانع...")
+  except Exception as e:
+    print(f"[ERROR]: {e}")
+  
+  # إعادة تشغيل البرنامج
+args = [sys.executable, "main.py"]
+os.execle(sys.executable, sys.executable, *args, environ)
 
 @Client.on_message(filters.command(["الاحصائيات"], ""))
 async def user(client, message):

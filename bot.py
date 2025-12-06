@@ -15,6 +15,15 @@ bot = Client(
 async def start_bot():
     print("[INFO]: STARTING BOT CLIENT")
     await bot.start()
+    # تحميل البوتات المحفوظة تلقائياً
+    try:
+        from Maker.KERO import auto_bot
+        print("[INFO]: جاري تحميل البوتات المحفوظة...")
+        await auto_bot()
+        print("[INFO]: تم تحميل البوتات بنجاح")
+    except Exception as e:
+        print(f"[WARNING]: خطأ في تحميل البوتات: {e}")
+    
     MAMI = "ISIIQ"
     await bot.send_message(MAMI, "**البوت اشتغل يبيبي 💋 .**")
     await bot.send_message(MAMI,"البتنجان اخد البرجر فحته تانيه")
